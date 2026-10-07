@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Git Playground · Live Command Reference</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --bg-0: #06090f;
+    --bg-1: #0a0f1a;
+    --bg-2: #0f1626;
+    --bg-3: #16203a;
+    --surface: rgba(20, 30, 52, 0.6);
+    --border: rgba(110, 150, 200, 0.15);
+    --border-strong: rgba(130, 180, 230, 0.32);
+
+    --text-0: #eef4fc;
+    --text-1: #c3d3e8;
+    --text-2: #8298b5;
+    --text-3: #55688a;
+
+    --accent: #38bdf8;
+    --accent-2: #22d3ee;
+    --accent-glow: rgba(56, 189, 248, 0.45);
+
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 22px;
+
+    --shadow: 0 12px 32px -12px rgba(0,0,0,.55);
+    --shadow-lg: 0 30px 60px -20px rgba(0,0,0,.65);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-0);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(900px 600px at 10% -10%, rgba(56, 189, 248, 0.16), transparent 60%),
+      radial-gradient(800px 500px at 95% 5%, rgba(167, 139, 250, 0.14), transparent 55%),
+      radial-gradient(700px 500px at 55% 115%, rgba(52, 211, 153, 0.08), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: 100vh;
+    padding: 14px;
+    gap: 14px;
+  }
+
+  /* ============================================================
+     SIDEBAR
+     ============================================================ */
+  .sidebar {
+    background: linear-gradient(180deg, rgba(15, 22, 38, 0.9), rgba(10, 15, 26, 0.95));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px 14px;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-lg);
+    overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 5px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(120, 168, 224, 0.18); border-radius: 10px; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 8px 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .brand-logo {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center;
+    color: #06121f;
+    font-size: 1.3rem;
+    box-shadow: 0 8px 20px -6px var(--accent-glow);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .brand-logo::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    filter: blur(8px);
+    opacity: .45;
+    z-index: -1;
+  }
+  .brand h1 {
+    font-size: .95rem;
+    font-weight: 800;
+    color: var(--text-0);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .brand small {
+    display: block;
+    font-size: .64rem;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+
+  .nav-section-label {
+    font-size: .62rem;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 6px 12px 10px;
+  }
+
+  .lvl-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text-2);
+    font-size: .8rem;
+    font-weight: 600;
+    transition: all .18s cubic-bezier(.4, 0, .2, 1);
+    border: 1px solid transparent;
+    margin-bottom: 4px;
+    user-select: none;
+  }
+  .lvl-btn .ico {
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    border-radius: 8px;
+    background: rgba(120, 168, 224, 0.1);
+    color: var(--text-3);
+    font-size: .78rem;
+    flex-shrink: 0;
+    transition: all .18s;
+  }
+  .lvl-btn .count {
+    margin-left: auto;
+    font-size: .64rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(120, 168, 224, 0.1);
+    color: var(--text-3);
+    transition: all .18s;
+  }
+  .lvl-btn:hover {
+    background: rgba(56, 189, 248, 0.06);
+    color: var(--text-0);
+    border-color: rgba(56, 189, 248, 0.15);
+  }
+  .lvl-btn:hover .ico { color: var(--accent); }
+
+  .lvl-btn.active {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(34, 211, 238, 0.06));
+    color: var(--text-0);
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 6px 18px -8px var(--accent-glow);
+  }
+  .lvl-btn.active .ico {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #06121f;
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .lvl-btn.active .count {
+    background: rgba(56, 189, 248, 0.25);
+    color: var(--accent);
+  }
+
+  .lvl-btn[data-level="beginner"] .ico { color: var(--green); }
+  .lvl-btn[data-level="intermediate"] .ico { color: var(--accent); }
+  .lvl-btn[data-level="advanced"] .ico { color: var(--amber); }
+  .lvl-btn[data-level="expert"] .ico { color: var(--red); }
+
+  .legend {
+    margin-top: 20px;
+    padding: 14px 12px;
+    background: rgba(6, 9, 15, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .legend h4 {
+    font-size: .6rem;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 10px;
+  }
+  .legend div {
+    font-size: .68rem;
+    color: var(--text-2);
+    line-height: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend .swatch {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sidebar-foot {
+    margin-top: auto;
+    padding: 14px 12px 4px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .68rem;
+    color: var(--text-3);
+  }
+  .pulse-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(1.3); }
+  }
+
+  /* ============================================================
+     MAIN
+     ============================================================ */
+  .main {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgba(15, 22, 38, 0.7), rgba(10, 15, 26, 0.85));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-lg);
+    min-height: 0;
+  }
+
+  .main-head {
+    padding: 20px 26px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, rgba(28, 44, 74, 0.35), transparent);
+  }
+  .head-icon {
+    width: 46px; height: 46px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(34, 211, 238, 0.08));
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    display: grid; place-items: center;
+    color: var(--accent);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px -10px var(--accent-glow);
+  }
+  .head-text h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-0);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .head-text .sub {
+    font-size: .76rem;
+    color: var(--text-2);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .head-badge {
+    margin-left: auto;
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 7px 14px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  .head-badge i { font-size: .68rem; }
+
+  /* ============================================================
+     MAIN BODY — resizable split
+     ============================================================ */
+  .main-body {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1fr 6px 340px;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* command list */
+  .cmd-scroll {
+    overflow-y: auto;
+    padding: 22px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+  }
+  .cmd-scroll::-webkit-scrollbar { width: 10px; }
+  .cmd-scroll::-webkit-scrollbar-track { background: transparent; }
+  .cmd-scroll::-webkit-scrollbar-thumb {
+    background: rgba(120, 168, 224, 0.2);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .cmd-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(120, 168, 224, 0.4);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+
+  /* ============================================================
+     DRAG HANDLE (VS Code style)
+     ============================================================ */
+  .drag-handle {
+    height: 6px;
+    background: transparent;
+    cursor: ns-resize;
+    position: relative;
+    flex-shrink: 0;
+    transition: background .15s;
+    user-select: none;
+    z-index: 10;
+  }
+  .drag-handle::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(120, 168, 224, 0.25);
+    transition: all .2s;
+  }
+  .drag-handle:hover {
+    background: rgba(56, 189, 248, 0.08);
+  }
+  .drag-handle:hover::before {
+    background: var(--accent);
+    width: 80px;
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .drag-handle.dragging {
+    background: rgba(56, 189, 248, 0.15);
+  }
+  .drag-handle.dragging::before {
+    background: var(--accent);
+    width: 100%;
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  /* command card — NO left border */
+  .cmd-card {
+    background: linear-gradient(160deg, rgba(20, 30, 52, 0.75), rgba(15, 22, 38, 0.55));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    opacity: 0;
+    animation: cardIn .5s cubic-bezier(.4, 0, .2, 1) forwards;
+    transition: all .25s cubic-bezier(.4, 0, .2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .cmd-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.4), transparent);
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .cmd-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px -16px rgba(0,0,0,.6), 0 0 0 1px rgba(56, 189, 248, 0.05);
+    background: linear-gradient(160deg, rgba(28, 44, 74, 0.85), rgba(20, 30, 52, 0.6));
+  }
+  .cmd-card:hover::before { opacity: 1; }
+
+  .cmd-title {
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--text-0);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.01em;
+  }
+  .cmd-title .lvl-chip {
+    font-size: .58rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 30px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .cmd-title .lvl-chip.beginner     { color: var(--green);  background: rgba(52, 211, 153, 0.12);  border-color: rgba(52, 211, 153, 0.35); }
+  .cmd-title .lvl-chip.intermediate { color: var(--accent); background: rgba(56, 189, 248, 0.12);  border-color: rgba(56, 189, 248, 0.35); }
+  .cmd-title .lvl-chip.advanced     { color: var(--amber);  background: rgba(251, 191, 36, 0.12);  border-color: rgba(251, 191, 36, 0.35); }
+  .cmd-title .lvl-chip.expert       { color: var(--red);    background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.35); }
+
+  .cmd-desc { font-size: .78rem; color: var(--text-2); line-height: 1.55; }
+
+  .cmd-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    background: rgba(6, 9, 15, 0.8);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text-0);
+    line-height: 1.75;
+    border: 1px solid rgba(120, 168, 224, 0.1);
+    overflow-x: auto;
+    white-space: pre;
+    position: relative;
+  }
+  .cmd-code::before {
+    content: '$';
+    color: var(--green);
+    margin-right: 6px;
+    font-weight: 700;
+  }
+  .cmd-code::-webkit-scrollbar { height: 6px; }
+  .cmd-code::-webkit-scrollbar-thumb { background: rgba(120, 168, 224, 0.2); border-radius: 10px; }
+  .cmd-code .cm { color: var(--text-3); font-style: italic; }
+  .cmd-code .kw { color: var(--pink); font-weight: 600; }
+  .cmd-code .st { color: var(--purple); }
+  .cmd-code .fl { color: var(--amber); }
+  .cmd-code .fn { color: var(--accent); font-weight: 600; }
+
+  .cmd-run {
+    align-self: flex-start;
+    margin-top: 2px;
+    font-size: .74rem;
+    padding: 8px 16px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #06121f;
+    cursor: pointer;
+    font-weight: 700;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all .2s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: 0 6px 18px -6px var(--accent-glow);
+  }
+  .cmd-run:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px -8px var(--accent-glow);
+  }
+  .cmd-run:active { transform: translateY(0); }
+  .cmd-run i { font-size: .72rem; }
+
+  /* ============================================================
+     TERMINAL
+     ============================================================ */
+  .terminal-wrap {
+    background: rgba(6, 9, 15, 0.85);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .term-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(10, 15, 26, 0.85);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .term-head .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .term-head .title {
+    margin-left: auto;
+    font-size: .7rem;
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .term-head .title i { color: var(--green); font-size: .55rem; }
+  .term-head .clear-btn {
+    font-size: .68rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-3);
+    padding: 4px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    transition: all .18s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .term-head .clear-btn:hover {
+    color: var(--red);
+    border-color: rgba(248, 113, 113, 0.4);
+    background: rgba(248, 113, 113, 0.08);
+  }
+
+  .terminal {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 20px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    line-height: 1.75;
+    color: var(--text-0);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 0;
+  }
+  .terminal::-webkit-scrollbar { width: 8px; }
+  .terminal::-webkit-scrollbar-thumb { background: rgba(120, 168, 224, 0.18); border-radius: 10px; }
+  .terminal::-webkit-scrollbar-thumb:hover { background: rgba(120, 168, 224, 0.35); }
+
+  .terminal .prompt   { color: var(--green); font-weight: 600; }
+  .terminal .out      { color: var(--text-1); }
+  .terminal .err      { color: #fca5a5; }
+  .terminal .ok       { color: #6ee7b7; }
+  .terminal .hint     { color: var(--amber); }
+  .terminal .comment  { color: var(--text-3); font-style: italic; }
+  .terminal .blink::after { content: '▌'; color: var(--accent); animation: blink .8s infinite; margin-left: 2px; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* drag handle must be above the terminal & cmd area */
+  .drag-handle { position: relative; }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; height: auto; min-height: 100vh; padding: 10px; }
+    body { overflow: auto; }
+    .main { min-height: 800px; }
+    .main-body { grid-template-rows: 1fr 6px 300px; }
+  }
+  @media (max-width: 600px) {
+    .head-badge { display: none; }
+    .main-head { padding: 16px 18px; }
+    .cmd-scroll { padding: 16px 18px 20px; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fab fa-git-alt"></i></div>
+      <div>
+        <h1>Git Playground</h1>
+        <small>Live command reference</small>
+      </div>
+    </div>
+
+    <div class="nav-section-label">Skill level</div>
+    <div id="levelList"></div>
+
+    <div class="legend">
+      <h4>Legend</h4>
+      <div><span class="swatch" style="background:var(--green);"></span> Beginner · daily commands</div>
+      <div><span class="swatch" style="background:var(--accent);"></span> Intermediate · branches</div>
+      <div><span class="swatch" style="background:var(--amber);"></span> Advanced · rewrite</div>
+      <div><span class="swatch" style="background:var(--red);"></span> Expert · plumbing</div>
+    </div>
+
+    <div class="sidebar-foot">
+      <span class="pulse-dot"></span>
+      <span id="footText">28 commands · 4 levels</span>
+    </div>
+  </aside>
+
+  <!-- ============================ MAIN ============================ -->
+  <main class="main">
+    <div class="main-head">
+      <div class="head-icon" id="headIcon"><i class="fas fa-seedling"></i></div>
+      <div class="head-text">
+        <h2 id="headTitle">Beginner Git commands</h2>
+        <div class="sub" id="headSub">Click "Run in terminal" on any card to watch it execute live</div>
+      </div>
+      <div class="head-badge">
+        <i class="fas fa-terminal"></i> <span id="headBadge">6 commands</span>
+      </div>
+    </div>
+
+    <div class="main-body" id="mainBody">
+      <div class="cmd-scroll" id="cmdScroll"></div>
+
+      <!-- VS Code style drag handle -->
+      <div class="drag-handle" id="dragHandle" title="Drag to resize terminal"></div>
+
+      <div class="terminal-wrap" id="terminalWrap">
+        <div class="term-head">
+          <span class="dot" style="background:#f87171;"></span>
+          <span class="dot" style="background:#fbbf24;"></span>
+          <span class="dot" style="background:#34d399;"></span>
+          <span class="title"><i class="fas fa-circle"></i> git-playground — bash</span>
+          <button class="clear-btn" id="clearBtn"><i class="fas fa-broom"></i> Clear</button>
+        </div>
+        <div class="terminal" id="terminal"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* =====================================================================
+   GIT COMMANDS DATA
+   ===================================================================== */
+const GIT_COMMANDS = [
+  /* ============================== BEGINNER ============================== */
+  { level:'beginner', title:'git init', desc:'Turn the current folder into a Git repository. Creates a hidden .git folder that tracks everything.',
+    code:'git init',
+    term:[{t:'prompt',v:'$ git init'},{t:'out',v:'Initialized empty Git repository in /Users/sagar/demo/.git/'},{t:'ok',v:'✓ Repository created'}] },
+  { level:'beginner', title:'git status', desc:'See what changed — staged, unstaged, and untracked files at a glance.',
+    code:'git status',
+    term:[{t:'prompt',v:'$ git status'},{t:'out',v:'On branch main'},{t:'out',v:'Changes not staged for commit:'},{t:'out',v:'  modified:   src/app.js'},{t:'out',v:'Untracked files:'},{t:'out',v:'  styles.css'}] },
+  { level:'beginner', title:'git add', desc:'Stage files so they get included in the next commit. Use -p to stage hunk by hunk.',
+    code:'git add .\ngit add src/app.js\ngit add -p',
+    term:[{t:'prompt',v:'$ git add .'},{t:'ok',v:'✓ 3 files staged'},{t:'prompt',v:'$ git add src/app.js'},{t:'ok',v:'✓ src/app.js staged'},{t:'prompt',v:'$ git add -p'},{t:'out',v:'Interactive staging — hunk 1/4 …'}] },
+  { level:'beginner', title:'git commit', desc:'Save a snapshot with a message. Use -am to stage tracked files and commit in one go.',
+    code:'git commit -m "Add login form"',
+    term:[{t:'prompt',v:'$ git commit -m "Add login form"'},{t:'out',v:'[main 3a1f2c9] Add login form'},{t:'out',v:' 2 files changed, 47 insertions(+)'},{t:'ok',v:'✓ Commit created'}] },
+  { level:'beginner', title:'git log', desc:'See the commit history. Add --oneline --graph --all for the best view.',
+    code:'git log --oneline --graph --all',
+    term:[{t:'prompt',v:'$ git log --oneline --graph --all'},{t:'out',v:'* 3a1f2c9 (HEAD -> main) Add login form'},{t:'out',v:'* 9b4d1a2 Add signup form'},{t:'out',v:'* 4c8e6f0 Initial commit'}] },
+  { level:'beginner', title:'git push', desc:'Send local commits to the remote. Use -u on first push to set upstream.',
+    code:'git push origin main\ngit push -u origin feature/login',
+    term:[{t:'prompt',v:'$ git push origin main'},{t:'out',v:'Enumerating objects: 5, done.'},{t:'out',v:'Counting objects: 100% (5/5), done.'},{t:'out',v:'To github.com:sagar/demo.git'},{t:'out',v:'   9b4d1a2..3a1f2c9  main -> main'},{t:'ok',v:'✓ Pushed'}] },
+
+  /* ============================== INTERMEDIATE ============================== */
+  { level:'intermediate', title:'git branch / switch', desc:'Create and switch branches so main stays stable. Use -c to create + switch in one step.',
+    code:'git branch feature/login\ngit switch feature/login\ngit switch -c feature/signup',
+    term:[{t:'prompt',v:'$ git branch feature/login'},{t:'prompt',v:'$ git switch feature/login'},{t:'ok',v:"Switched to branch 'feature/login'"},{t:'prompt',v:'$ git switch -c feature/signup'},{t:'ok',v:"Switched to a new branch 'feature/signup'"}] },
+  { level:'intermediate', title:'git merge', desc:'Bring a feature branch into main. Use --no-ff to always create a merge commit.',
+    code:'git switch main\ngit merge --no-ff feature/login',
+    term:[{t:'prompt',v:'$ git switch main'},{t:'prompt',v:'$ git merge --no-ff feature/login'},{t:'out',v:"Merge made by the 'recursive' strategy."},{t:'out',v:'  src/login.js | 47 ++++++++++++'},{t:'ok',v:'✓ Merged with a merge commit'}] },
+  { level:'intermediate', title:'git fetch vs pull', desc:'Fetch downloads refs without merging. Pull = fetch + merge (or rebase).',
+    code:'git fetch --all --prune\ngit pull --rebase',
+    term:[{t:'prompt',v:'$ git fetch --all --prune'},{t:'out',v:'Fetching origin…'},{t:'ok',v:'✓ Remote refs updated'},{t:'prompt',v:'$ git pull --rebase'},{t:'out',v:'Successfully rebased and updated refs/heads/main.'}] },
+  { level:'intermediate', title:'git stash', desc:'Shelve uncommitted work so you can switch context. Pop to bring it back.',
+    code:'git stash push -m "WIP login"\ngit stash list\ngit stash pop',
+    term:[{t:'prompt',v:'$ git stash push -m "WIP login"'},{t:'out',v:'Saved working directory and index state'},{t:'prompt',v:'$ git stash list'},{t:'out',v:'stash@{0}: On main: WIP login'},{t:'prompt',v:'$ git stash pop'},{t:'ok',v:'✓ Changes restored'}] },
+  { level:'intermediate', title:'git diff', desc:'See exactly what changed. Add --staged to view staged changes.',
+    code:'git diff          # unstaged\ngit diff --staged # staged',
+    term:[{t:'prompt',v:'$ git diff'},{t:'out',v:'diff --git a/src/app.js b/src/app.js'},{t:'out',v:'index 3a1f2c9..7e2b8d4 100644'},{t:'out',v:'- const port = 3000;'},{t:'ok',v:'+ const port = process.env.PORT;'}] },
+  { level:'intermediate', title:'git restore', desc:'Discard unstaged changes, or unstage files with --staged.',
+    code:'git restore src/app.js\ngit restore --staged src/app.js',
+    term:[{t:'prompt',v:'$ git restore src/app.js'},{t:'ok',v:'✓ Changes discarded'},{t:'prompt',v:'$ git restore --staged src/app.js'},{t:'out',v:'Unstaged src/app.js'}] },
+
+  /* ============================== ADVANCED ============================== */
+  { level:'advanced', title:'git rebase -i', desc:'Interactive rewrite. Squash, reword, reorder, or drop commits before opening a PR.',
+    code:'git rebase -i HEAD~5',
+    term:[{t:'prompt',v:'$ git rebase -i HEAD~5'},{t:'out',v:'pick   3a1f2c9 Add login form'},{t:'out',v:'squash 9b4d1a2 Fix typo'},{t:'out',v:'reword 4c8e6f0 WIP'},{t:'ok',v:'✓ History rewritten'}] },
+  { level:'advanced', title:'git cherry-pick', desc:'Copy a specific commit from another branch onto the current one.',
+    code:'git cherry-pick 3a1f2c9',
+    term:[{t:'prompt',v:'$ git cherry-pick 3a1f2c9'},{t:'out',v:'[main 7e2b8d4] Add login form'},{t:'ok',v:'✓ Commit copied'}] },
+  { level:'advanced', title:'git reset', desc:'Move the branch pointer. soft keeps staged · mixed keeps unstaged · hard destroys.',
+    code:'git reset --soft  HEAD~1   # keep staged\ngit reset --mixed HEAD~1   # keep unstaged\ngit reset --hard  HEAD~1   # DESTROY',
+    term:[{t:'prompt',v:'$ git reset --soft HEAD~1'},{t:'ok',v:'✓ Last commit undone, changes staged'},{t:'prompt',v:'$ git reset --hard HEAD~1'},{t:'err',v:'⚠  Working tree reset — uncommitted work destroyed'}] },
+  { level:'advanced', title:'git revert', desc:'Undo a commit safely by creating an opposite one. Use on shared branches.',
+    code:'git revert 3a1f2c9\ngit revert HEAD~3..HEAD',
+    term:[{t:'prompt',v:'$ git revert 3a1f2c9'},{t:'out',v:'[main 8f1c3e2] Revert "Add login form"'},{t:'ok',v:'✓ Safe undo — shared history preserved'}] },
+  { level:'advanced', title:'git reflog', desc:'Your time machine. Every HEAD movement is recorded — recover lost commits.',
+    code:'git reflog\ngit reset --hard HEAD@{3}',
+    term:[{t:'prompt',v:'$ git reflog'},{t:'out',v:'3a1f2c9 HEAD@{0}: commit: Add login form'},{t:'out',v:'9b4d1a2 HEAD@{1}: commit: Add signup form'},{t:'out',v:'4c8e6f0 HEAD@{2}: commit (initial): Initial commit'},{t:'prompt',v:'$ git reset --hard HEAD@{3}'},{t:'ok',v:'✓ Recovered lost commit'}] },
+  { level:'advanced', title:'git bisect', desc:'Binary-search through history to find the commit that introduced a bug.',
+    code:'git bisect start\ngit bisect bad\ngit bisect good v1.2.0\ngit bisect run npm test',
+    term:[{t:'prompt',v:'$ git bisect start'},{t:'prompt',v:'$ git bisect bad'},{t:'prompt',v:'$ git bisect good v1.2.0'},{t:'out',v:'Bisecting: 8 revisions left to test'},{t:'prompt',v:'$ git bisect run npm test'},{t:'ok',v:'✓ abc1234 is the first bad commit'}] },
+  { level:'advanced', title:'git tag', desc:'Mark releases so you can reproduce them later. Annotated tags are recommended.',
+    code:'git tag -a v1.0.0 -m "Release 1.0"\ngit push origin v1.0.0',
+    term:[{t:'prompt',v:'$ git tag -a v1.0.0 -m "Release 1.0"'},{t:'ok',v:'✓ Tag v1.0.0 created'},{t:'prompt',v:'$ git push origin v1.0.0'},{t:'ok',v:'✓ Tag pushed'}] },
+  { level:'advanced', title:'git worktree', desc:'Check out multiple branches at once in separate folders — no stashing needed.',
+    code:'git worktree add ../hotfix hotfix/urgent\ngit worktree list',
+    term:[{t:'prompt',v:'$ git worktree add ../hotfix hotfix/urgent'},{t:'out',v:"Preparing worktree (new branch 'hotfix/urgent')"},{t:'ok',v:'✓ Second working directory ready'},{t:'prompt',v:'$ git worktree list'},{t:'out',v:'/Users/sagar/demo        3a1f2c9 [main]'},{t:'out',v:'/Users/sagar/hotfix      9b4d1a2 [hotfix/urgent]'}] },
+
+  /* ============================== EXPERT ============================== */
+  { level:'expert', title:'git filter-repo', desc:'Purge a secret or a file from ALL history. Replaces the old filter-branch.',
+    code:'git filter-repo --path secrets.env --invert-paths\ngit push --force-with-lease',
+    term:[{t:'prompt',v:'$ git filter-repo --path secrets.env --invert-paths'},{t:'out',v:'Parsed 1,284 commits'},{t:'out',v:'New history written in 3.2s'},{t:'prompt',v:'$ git push --force-with-lease'},{t:'hint',v:'⚠  Rotate the secret immediately — history is public!'}] },
+  { level:'expert', title:'git cat-file', desc:'Inspect raw Git objects — commit, tree, blob. Powers most Git porcelain.',
+    code:'git cat-file -t 3a1f2c9   # type\ngit cat-file -p 3a1f2c9   # pretty print',
+    term:[{t:'prompt',v:'$ git cat-file -t 3a1f2c9'},{t:'out',v:'commit'},{t:'prompt',v:'$ git cat-file -p 3a1f2c9'},{t:'out',v:'tree 4c8e6f0…'},{t:'out',v:'parent 9b4d1a2…'},{t:'out',v:'author Sagar <sagar@example.com> 1730923200 +0000'},{t:'out',v:'committer Sagar <sagar@example.com> 1730923200 +0000'},{t:'out',v:''},{t:'out',v:'Add login form'}] },
+  { level:'expert', title:'git rev-list', desc:'List commits for scripting and audits. Combine with --all, --count, --objects.',
+    code:'git rev-list --all --count\ngit rev-list --objects --all | head -3',
+    term:[{t:'prompt',v:'$ git rev-list --all --count'},{t:'out',v:'1284'},{t:'prompt',v:'$ git rev-list --objects --all | head -3'},{t:'out',v:'3a1f2c9…  src/app.js'},{t:'out',v:'4c8e6f0…  README.md'},{t:'out',v:'9b4d1a2…  package.json'}] },
+  { level:'expert', title:'git gc', desc:'Garbage-collect and compress the object store. Run --aggressive to shrink large repos.',
+    code:'git gc --aggressive --prune=now',
+    term:[{t:'prompt',v:'$ git gc --aggressive --prune=now'},{t:'out',v:'Enumerating objects: 12,384, done.'},{t:'out',v:'Compressing objects: 100% (8,742/8,742), done.'},{t:'out',v:'Writing objects: 100%'},{t:'ok',v:'✓ Repo shrunk from 214 MB → 87 MB'}] },
+  { level:'expert', title:'git rev-parse', desc:'Turn any ref into a SHA — perfect for scripts and CI. --abbrev-ref gets the branch name.',
+    code:'git rev-parse HEAD\ngit rev-parse --abbrev-ref HEAD\ngit rev-parse HEAD~3',
+    term:[{t:'prompt',v:'$ git rev-parse HEAD'},{t:'out',v:'3a1f2c9e4d8b7a6f5c4b3a2d1e0f9c8b7a6d5e4f'},{t:'prompt',v:'$ git rev-parse --abbrev-ref HEAD'},{t:'out',v:'main'},{t:'prompt',v:'$ git rev-parse HEAD~3'},{t:'out',v:'4c8e6f01d9e5b8c7a4f3e2d1c0b9a8f7e6d5c4b3'}] },
+  { level:'expert', title:'git hooks', desc:'Run scripts automatically on Git events. Enforce lint, tests, or conventional commits.',
+    code:"cat > .git/hooks/pre-commit <<'EOF'\n#!/bin/sh\nnpm run lint || exit 1\nEOF\nchmod +x .git/hooks/pre-commit",
+    term:[{t:'prompt',v:'$ git commit -m "Add form"'},{t:'out',v:'Running pre-commit hook…'},{t:'out',v:'✔ lint passed'},{t:'ok',v:'✓ Commit allowed'}] },
+  { level:'expert', title:'--force-with-lease', desc:'The ONLY safe way to force-push after a rebase. Refuses if someone else pushed first.',
+    code:'git push --force-with-lease origin main',
+    term:[{t:'prompt',v:'$ git push --force-with-lease origin main'},{t:'out',v:'+ 9b4d1a2…3a1f2c9 main -> main (forced update)'},{t:'ok',v:"✓ Remote updated — no one else's work overwritten"}] }
+];
+
+const LEVELS = [
+  { id:'beginner',     label:'Beginner',     icon:'fa-seedling', desc:'Daily commands you use every day' },
+  { id:'intermediate', label:'Intermediate', icon:'fa-leaf',     desc:'Branching, remotes, and collaboration' },
+  { id:'advanced',     label:'Advanced',     icon:'fa-tree',     desc:'Rewriting history with confidence' },
+  { id:'expert',       label:'Expert',       icon:'fa-mountain', desc:'Plumbing, repair, and repo surgery' }
+];
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let activeLevel = 'beginner';
+let terminalTimer = null;
+
+const levelList = document.getElementById('levelList');
+const cmdScroll = document.getElementById('cmdScroll');
+const terminal  = document.getElementById('terminal');
+const headIcon  = document.getElementById('headIcon');
+const headTitle = document.getElementById('headTitle');
+const headSub   = document.getElementById('headSub');
+const headBadge = document.getElementById('headBadge');
+const footText  = document.getElementById('footText');
+
+/* =====================================================================
+   BUILD SIDEBAR
+   ===================================================================== */
+function buildSidebar() {
+  levelList.innerHTML = '';
+  LEVELS.forEach(lv => {
+    const count = GIT_COMMANDS.filter(c => c.level === lv.id).length;
+    const el = document.createElement('div');
+    el.className = 'lvl-btn' + (lv.id === activeLevel ? ' active' : '');
+    el.dataset.level = lv.id;
+    el.innerHTML = `
+      <span class="ico"><i class="fas ${lv.icon}"></i></span>
+      <span>${lv.label}</span>
+      <span class="count">${count}</span>
+    `;
+    el.addEventListener('click', () => selectLevel(lv.id));
+    levelList.appendChild(el);
+  });
+
+  const total = GIT_COMMANDS.length;
+  footText.textContent = `${total} commands · ${LEVELS.length} levels`;
+}
+
+/* =====================================================================
+   SELECT LEVEL
+   ===================================================================== */
+function selectLevel(levelId) {
+  activeLevel = levelId;
+
+  document.querySelectorAll('.lvl-btn').forEach(el => {
+    el.classList.toggle('active', el.dataset.level === levelId);
+  });
+
+  const lv = LEVELS.find(l => l.id === levelId);
+  const filtered = GIT_COMMANDS.filter(c => c.level === levelId);
+
+  headIcon.innerHTML = `<i class="fas ${lv.icon}"></i>`;
+  headTitle.textContent = `${lv.label} Git commands`;
+  headSub.textContent = lv.desc;
+  headBadge.textContent = `${filtered.length} commands`;
+
+  cmdScroll.innerHTML = '';
+  filtered.forEach((cmd, i) => {
+    const card = document.createElement('div');
+    card.className = 'cmd-card';
+    card.style.animationDelay = (i * 55) + 'ms';
+    card.innerHTML = `
+      <div class="cmd-title">
+        <span class="lvl-chip ${cmd.level}">${cmd.level}</span>
+        ${cmd.title}
+      </div>
+      <div class="cmd-desc">${cmd.desc}</div>
+      <div class="cmd-code">${highlightGit(cmd.code)}</div>
+      <button class="cmd-run" data-i="${i}">
+        <i class="fas fa-play"></i> Run in terminal
+      </button>
+    `;
+    cmdScroll.appendChild(card);
+  });
+
+  cmdScroll.querySelectorAll('.cmd-run').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.i, 10);
+      playCommand(filtered[idx]);
+      btn.innerHTML = '<i class="fas fa-check"></i> Playing…';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-play"></i> Run in terminal';
+      }, 1500);
+    });
+  });
+
+  terminal.innerHTML = '';
+  if (filtered.length > 0) playCommand(filtered[0], true);
+}
+
+/* =====================================================================
+   SYNTAX HIGHLIGHT
+   ===================================================================== */
+function highlightGit(code) {
+  let s = code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  s = s.replace(/(#.*)$/gm, '<span class="cm">$1</span>');
+  s = s.replace(/\bgit\s+([a-z-]+)/g, 'git <span class="fn">$1</span>');
+  s = s.replace(/(\s)(-{1,2}[a-zA-Z][a-zA-Z0-9-]*)/g, '$1<span class="fl">$2</span>');
+  s = s.replace(/"([^"]*)"/g, '<span class="st">"$1"</span>');
+  s = s.replace(/'([^']*)'/g, '<span class="st">\'$1\'</span>');
+  return s;
+}
+
+/* =====================================================================
+   TERMINAL ANIMATION
+   ===================================================================== */
+function playCommand(cmd, silent) {
+  if (!cmd || !cmd.term) return;
+  if (terminalTimer) clearTimeout(terminalTimer);
+
+  if (!silent) {
+    const div = document.createElement('div');
+    div.innerHTML = '&nbsp;';
+    terminal.appendChild(div);
+  }
+
+  let i = 0;
+  function step() {
+    if (i >= cmd.term.length) { terminal.scrollTop = terminal.scrollHeight; return; }
+    const line = cmd.term[i];
+    const el = document.createElement('div');
+    if (line.t === 'prompt') {
+      el.className = 'prompt blink';
+      el.textContent = line.v;
+    } else {
+      el.className = line.t;
+      el.textContent = line.v;
+    }
+    terminal.appendChild(el);
+    terminal.scrollTop = terminal.scrollHeight;
+    i++;
+    const delay = line.t === 'prompt' ? 340 : 240;
+    terminalTimer = setTimeout(step, delay);
+  }
+  step();
+}
+
+/* =====================================================================
+   CLEAR BUTTON
+   ===================================================================== */
+document.getElementById('clearBtn').addEventListener('click', () => {
+  terminal.innerHTML = '';
+  const intro = document.createElement('div');
+  intro.className = 'comment';
+  intro.textContent = '# Terminal cleared. Click "Run in terminal" on any command card.';
+  terminal.appendChild(intro);
+});
+
+/* =====================================================================
+   DRAGGABLE TERMINAL (VS Code style)
+   ===================================================================== */
+(function makeDraggable() {
+  const mainBody   = document.getElementById('mainBody');
+  const dragHandle = document.getElementById('dragHandle');
+  const termWrap   = document.getElementById('terminalWrap');
+
+  const MIN_TERM_HEIGHT = 120;   // px
+  const MIN_CMD_HEIGHT  = 100;   // px
+  const STORAGE_KEY = 'git-playground-term-height';
+
+  // restore saved height
+  let initialH = parseInt(localStorage.getItem(STORAGE_KEY) || '340', 10);
+  if (!Number.isFinite(initialH)) initialH = 340;
+
+  function applyHeight(h) {
+    // clamp
+    const total = mainBody.clientHeight;
+    const maxH = Math.max(MIN_TERM_HEIGHT, total - MIN_CMD_HEIGHT - dragHandle.offsetHeight);
+    const clamped = Math.max(MIN_TERM_HEIGHT, Math.min(h, maxH));
+    mainBody.style.gridTemplateRows = `1fr 6px ${clamped}px`;
+    return clamped;
+  }
+
+  // initial apply (after layout settles)
+  requestAnimationFrame(() => applyHeight(initialH));
+
+  // re-apply on window resize so the terminal stays within bounds
+  let resizeRaf = null;
+  window.addEventListener('resize', () => {
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(() => {
+      const current = termWrap.getBoundingClientRect().height;
+      applyHeight(current);
+    });
+  });
+
+  let isDragging = false;
+  let startY = 0;
+  let startH = 0;
+
+  function onPointerDown(e) {
+    isDragging = true;
+    startY = e.clientY;
+    startH = termWrap.getBoundingClientRect().height;
+    dragHandle.classList.add('dragging');
+    document.body.style.cursor = 'ns-resize';
+    document.body.style.userSelect = 'none';
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    const delta = startY - e.clientY; // drag up = increase
+    applyHeight(startH + delta);
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    dragHandle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+
+    // save final height
+    const h = Math.round(termWrap.getBoundingClientRect().height);
+    localStorage.setItem(STORAGE_KEY, String(h));
+  }
+
+  // Pointer events work for mouse + touch + pen
+  dragHandle.addEventListener('pointerdown', onPointerDown);
+
+  // double-click to reset to default
+  dragHandle.addEventListener('dblclick', () => {
+    applyHeight(340);
+    localStorage.setItem(STORAGE_KEY, '340');
+  });
+})();
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+buildSidebar();
+selectLevel('beginner');
+</script>
+
+</body>
+</html>
